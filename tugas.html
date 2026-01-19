@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Seminar Teknologi</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+       body {
+           margin: 0;
+           min-height: 100vh;
+           background-image: url('C:\Users\salman\Downloads\pendaftaran.jpg');
+           background-size: cover;
+           background-position: center;
+           background-repeat: no-repeat;
+           background-attachment: fixed;
+           position: relative;
+        } 
+
+        body::before {
+           content: "";
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: rgba(0, 0, 0, 0.55);
+           z-index: -1;
+        }
+
+        header {
+           color: white;
+           padding: 30px;
+           text-align: center;
+           backdrop-filter: blur(4px);
+        }
+
+        footer {
+           text-align: center;
+           color: white;
+           padding: 15px;
+           background: rgba(0,0,0,0.4);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1 1 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1e3a8a;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        button:hover {
+            background: #16327a;
+        }
+
+        .message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .success { color: green; }
+        .error { color: red; }
+
+        .peserta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .hapus {
+            background: #dc2626;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+
+        .hapus:hover {
+            background: #b91c1c;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 15px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Seminar Teknologi Masa Depan</h1>
+    <p>Daftar sekarang dan tingkatkan wawasan teknologi Anda</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>📌 Informasi Event</h2>
+        <p><strong>Judul:</strong> Seminar Teknologi Masa Depan</p>
+        <p><strong>Tanggal:</strong> 25 Februari 2026</p>
+        <p><strong>Lokasi:</strong> Aula Utama Kampus El Rahma</p>
+        <p><strong>Kuota:</strong> <span id="jumlahPeserta">0</span> / 50</p>
+    </div>
+
+    <div class="card">
+        <h2>📝 Form Pendaftaran</h2>
+        <form id="formDaftar">
+            <input type="text" id="nama" placeholder="Nama Lengkap">
+            <input type="text" id="email" placeholder="Email">
+            <input type="text" id="hp" placeholder="Nomor HP">
+
+            <select id="kategori">
+                <option value="">-- Pilih Kategori --</option>
+                <option value="Mahasiswa">Mahasiswa</option>
+                <option value="Umum">Umum</option>
+            </select>
+
+            <button type="submit">Daftar</button>
+        </form>
+
+        <div id="pesan" class="message"></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>👥 Peserta Terdaftar</h2>
+        <div id="listPeserta"></div>
+    </div>
+</div>
+
+<footer>
+    © 2026 Event Kampus
+</footer>
+
+<script>
+    const form = document.getElementById("formDaftar");
+    const pesan = document.getElementById("pesan");
+    const listPeserta = document.getElementById("listPeserta");
+    const jumlahPeserta = document.getElementById("jumlahPeserta");
+
+    const MAX_KUOTA = 50;
+
+    let peserta = JSON.parse(localStorage.getItem("pesertaEvent")) || [];
+
+    function simpanLocal() {
+        localStorage.setItem("pesertaEvent", JSON.stringify(peserta));
+    }
+
+    function renderPeserta() {
+        listPeserta.innerHTML = "";
+        peserta.forEach((p, index) => {
+            const div = document.createElement("div");
+            div.className = "peserta-item";
+
+            div.innerHTML = `
+                <span>${p.nama} | ${p.email} | ${p.hp} | ${p.kategori}</span>
+                <button class="hapus" onclick="hapusPeserta(${index})">Hapus</button>
+            `;
+
+            listPeserta.appendChild(div);
+        });
+
+        jumlahPeserta.textContent = peserta.length;
+    }
+
+    window.hapusPeserta = function (index) {
+        peserta.splice(index, 1);
+        simpanLocal();
+        renderPeserta();
+    }
+
+    renderPeserta();
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        if (peserta.length >= MAX_KUOTA) {
+            pesan.textContent = "❌ Pendaftaran ditutup, kuota sudah penuh.";
+            pesan.className = "message error";
+            return;
+        }
+
+        const nama = document.getElementById("nama").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const hp = document.getElementById("hp").value.trim();
+        const kategori = document.getElementById("kategori").value;
+
+        if (!nama || !email || !hp || !kategori) {
+            pesan.textContent = "❌ Semua data wajib diisi.";
+            pesan.className = "message error";
+            return;
+        }
+
+        if (!email.includes("@")) {
+            pesan.textContent = "❌ Email harus mengandung karakter @.";
+            pesan.className = "message error";
+            return;
+        }
+
+        if (!/^[0-9]+$/.test(hp)) {
+            pesan.textContent = "❌ Nomor HP hanya boleh angka.";
+            pesan.className = "message error";
+            return;
+        }
+
+        peserta.push({ nama, email, hp, kategori });
+        simpanLocal();
+        renderPeserta();
+
+        pesan.textContent = "✅ Pendaftaran berhasil!";
+        pesan.className = "message success";
+        form.reset();
+    });
+</script>
+
+</body>
+</html>
